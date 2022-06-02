@@ -233,7 +233,7 @@ Example:
 
 1. Run the resque-scheduler rake task:
 
-    `$ rake resque-scheduler`
+    `$ rake resque:scheduler`
 
 1. Check the 'Delayed' tab in [Resque web](http://localhost:3000/admin/resque/delayed) to see your job.
 

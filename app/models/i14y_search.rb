@@ -9,6 +9,7 @@ class I14ySearch < FilterableSearch
     @enable_highlighting = !(false === options[:enable_highlighting])
     @collection = options[:document_collection]
     @site_limits = options[:site_limits]
+    # @tags = options[:tags]
     @matching_site_limits = formatted_query_instance.matching_site_limits
   end
 
@@ -19,7 +20,10 @@ class I14ySearch < FilterableSearch
       query: formatted_query,
       size: detect_size,
       offset: detect_offset,
-    }.merge!(filter_options)
+    }.merge!(filter_options).
+      merge!(facet_options)
+
+    puts "lora search options #{search_options.inspect}"
 
     I14yCollections.search(search_options)
   rescue Faraday::ClientError => e
@@ -37,6 +41,12 @@ class I14ySearch < FilterableSearch
     filter_options
   end
 
+  def facet_options
+    facet_options = { }
+    facet_options[:tags] = @options[:tags] if !@options[:tags].nil?
+    facet_options
+  end
+
   def detect_size
     @limit ? @limit : @per_page
   end
@@ -50,6 +60,10 @@ class I14ySearch < FilterableSearch
   end
 
   protected
+
+  # def tags
+  #   tags = @options[:tags]
+  # end
 
   def handles
     handles = []

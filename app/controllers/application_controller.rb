@@ -9,9 +9,10 @@ class ApplicationController < ActionController::Base
   SERP_RESULTS_PER_PAGE = 20
   PAGE_NOT_FOUND = 'https://www.usa.gov/search-error'
 
-  ADVANCED_PARAM_KEYS = %i(filetype filter query-not query-or query-quote).freeze
-  DUBLIN_CORE_PARAM_KEYS = %i(contributor publisher subject).freeze
-  FILTER_PARAM_KEYS = %i(since_date sort_by tbs until_date).freeze
+  ADVANCED_PARAM_KEYS = %i[filetype filter query-not query-or query-quote]
+  DUBLIN_CORE_PARAM_KEYS = %i[contributor publisher subject]
+  FILTER_PARAM_KEYS = %i[since_date sort_by tbs until_date]
+  FACET_PARAM_KEYS = %i[tags]
 
   PERMITTED_PARAM_KEYS = %i[
     affiliate
@@ -25,10 +26,12 @@ class ApplicationController < ActionController::Base
     query
     siteexclude
     sitelimit
+    # tags
     utf8
   ].concat(ADVANCED_PARAM_KEYS).
     concat(DUBLIN_CORE_PARAM_KEYS).
-    concat(FILTER_PARAM_KEYS).freeze
+    concat(FILTER_PARAM_KEYS).
+    concat(FACET_PARAM_KEYS)
 
   def handle_unverified_request
     raise ActionController::InvalidAuthenticityToken
@@ -59,11 +62,13 @@ class ApplicationController < ActionController::Base
 
   def current_user_session
     return @current_user_session if defined?(@current_user_session)
+
     @current_user_session = UserSession.find
   end
 
   def current_user
     return @current_user if defined?(@current_user)
+
     @current_user = current_user_session && current_user_session.user
   end
 
@@ -85,14 +90,15 @@ class ApplicationController < ActionController::Base
 
   def search_options_from_params(*param_keys)
     h = permitted_params.slice(*param_keys)
-    h.merge! affiliate: @affiliate,
+    h.merge!(affiliate: @affiliate,
              file_type: permitted_params[:filetype],
              page: permitted_params[:page],
              per_page: SERP_RESULTS_PER_PAGE,
              site_limits: permitted_params[:sitelimit],
-             site_excludes: permitted_params[:siteexclude]
-    h.merge! query_search_options
-    h.merge! highlighting_option
+             site_excludes: permitted_params[:siteexclude])
+    h.merge!(tags: permitted_params[:tags]) if permitted_params[:tags].present?
+    h.merge!(query_search_options)
+    h.merge!(highlighting_option)
     h.symbolize_keys
   end
 
@@ -101,9 +107,8 @@ class ApplicationController < ActionController::Base
                                                  :'query-not',
                                                  :'query-or',
                                                  :'query-quote')
-    query_search_params.inject({}) do |hash, kv|
-      hash[kv.first.to_s.underscore.to_sym] = sanitize_query kv.last
-      hash
+    query_search_params.each_with_object({}) do |kv, hash|
+      hash[kv.first.to_s.underscore.to_sym] = sanitize_query(kv.last)
     end
   end
 
@@ -112,7 +117,7 @@ class ApplicationController < ActionController::Base
   end
 
   def highlighting_option
-    { enable_highlighting: permitted_params[:hl] == 'false' ? false : true }
+    { enable_highlighting: !(permitted_params[:hl] == 'false') }
   end
 
   def force_request_format
@@ -125,7 +130,7 @@ class ApplicationController < ActionController::Base
     @search_params = ActiveSupport::HashWithIndifferentAccess.new(query: @search.query, affiliate: @affiliate.name)
     @search_params.merge!(sitelimit: permitted_params[:sitelimit]) if permitted_params[:sitelimit].present?
     @search_params.merge!(dc: permitted_params[:dc]) if permitted_params[:dc].present?
-    if @search.is_a? FilterableSearch
+    if @search.is_a?(FilterableSearch)
       @search_params.merge!(channel: @search.rss_feed.id) if @search.is_a?(NewsSearch) && @search.rss_feed
       @search_params.merge!(tbs: @search.tbs) if @search.tbs
       @search_params.merge!(since_date: @search.since.strftime(I18n.t(:cdr_format))) if permitted_params[:since_date].present? && @search.since
@@ -135,7 +140,7 @@ class ApplicationController < ActionController::Base
   end
 
   def set_search_page_title
-    query_string = @page_title.blank? ? '' : @page_title
+    query_string = @page_title.presence || ''
     @page_title = I18n.t(:default_serp_title,
                          query: query_string,
                          site_name: @affiliate.display_name)

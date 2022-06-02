@@ -1,0 +1,19 @@
+#facets
+    %h2= "Facet Fields"
+    %br
+    %h3= "Audience"
+    %br
+    %h3= "Category/Tag"
+    #{html.html_safe}
+    %br
+    = clear_facet(@search, @search_params)
+    %br
+    %h3= "Content Type"
+    %br
+    %h3= "Custom"
+    %br
+    %h3= "Date"
+    %br
+    %h3= "Domain"
+    %br
+    %h3= "File Type"

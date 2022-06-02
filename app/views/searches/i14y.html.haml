@@ -13,6 +13,9 @@
   = render partial: 'govbox_video_news_items', locals: { search:  @search, search_params: @search_params } if @search.has_video_news_items?
   = render partial: 'govbox_news_items', locals: { search:  @search } if @search.has_fresh_news_items?
 
+  - if @search
+    = tag_facet(@search, @search_params)
+
   - if @search.results.present?
     = render partial: 'searches/i14y/results', locals: { search:  @search }
     = render partial: 'offer_other_web_results', locals: { search:  @search }
