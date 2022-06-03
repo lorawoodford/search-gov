@@ -20,6 +20,7 @@ class Search
               :results,
               :spelling_suggestion,
               :spelling_suggestion_eligible,
+              :aggregation,
               :queried_at_seconds,
               :module_tag,
               :modules
@@ -29,7 +30,9 @@ class Search
     @query = build_query(options)
     initialize_pageable_attributes options
 
-    @results, @spelling_suggestion = [], nil
+    @results = []
+    @spelling_suggestion = nil
+    @aggregation = aggregation
     @queried_at_seconds = Time.now.to_i
     @modules = []
     @spelling_suggestion_eligible = !SuggestionBlock.exists?(query: options[:query])
@@ -41,6 +44,7 @@ class Search
     @error_message = (I18n.translate :empty_query) and return false unless query_present_or_blank_ok? and !query_blacklisted?
 
     response = search
+    puts "lora re #{response.inspect}"
     handle_response(response)
     populate_additional_results
     log_serp_impressions
@@ -74,6 +78,7 @@ class Search
       hash = {total: @total,
               startrecord: @startrecord,
               endrecord: @endrecord,
+              aggregation: @aggregation,
               results: results_to_hash}
       hash.merge!(related: remove_strong(related_search)) if self.respond_to?(:related_search)
       hash

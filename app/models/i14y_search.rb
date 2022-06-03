@@ -9,7 +9,6 @@ class I14ySearch < FilterableSearch
     @enable_highlighting = !(false === options[:enable_highlighting])
     @collection = options[:document_collection]
     @site_limits = options[:site_limits]
-    # @tags = options[:tags]
     @matching_site_limits = formatted_query_instance.matching_site_limits
   end
 
@@ -22,8 +21,6 @@ class I14ySearch < FilterableSearch
       offset: detect_offset,
     }.merge!(filter_options).
       merge!(facet_options)
-
-    puts "lora search options #{search_options.inspect}"
 
     I14yCollections.search(search_options)
   rescue Faraday::ClientError => e
@@ -59,11 +56,11 @@ class I14ySearch < FilterableSearch
     @offset ? @offset.zero? : super
   end
 
-  protected
+  def aggregation
+    @aggregation ? @aggregation : nil
+  end
 
-  # def tags
-  #   tags = @options[:tags]
-  # end
+  protected
 
   def handles
     handles = []
@@ -82,6 +79,7 @@ class I14ySearch < FilterableSearch
       @startrecord = ((@page - 1) * @per_page) + 1
       @endrecord = @startrecord + @results.size - 1
       @spelling_suggestion = response.metadata.suggestion.text if response.metadata.suggestion.present?
+      @aggregation = response.metadata.aggregation if response.metadata.aggregation.present?
     end
   end
 

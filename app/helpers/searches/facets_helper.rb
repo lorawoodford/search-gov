@@ -11,14 +11,14 @@ module Searches::FacetsHelper
   def tag_facet_html(search, search_params)
     path = path_for_filterable_search(search,
                                       search_params,
-                                      build_facet_options[:extra_params])
+                                      build_facet_options(search)[:extra_params])
 
-    link_to(build_facet_options[:extra_params].first, path)
+    link_to(search.aggregation.last.to_hash['key'], path)
   end
 
-  def build_facet_options
+  def build_facet_options(search)
     {
-      extra_params: { tags: 'immigration' }
+      extra_params: { tags: search.aggregation.first.to_hash['key'] }
     }
   end
 
@@ -27,6 +27,6 @@ module Searches::FacetsHelper
                                       search_params,
                                       {})
 
-    link_to("Clear", path)
+    link_to('Clear', path)
   end
 end

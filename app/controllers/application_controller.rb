@@ -26,7 +26,6 @@ class ApplicationController < ActionController::Base
     query
     siteexclude
     sitelimit
-    # tags
     utf8
   ].concat(ADVANCED_PARAM_KEYS).
     concat(DUBLIN_CORE_PARAM_KEYS).
