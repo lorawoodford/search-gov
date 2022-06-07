@@ -9,17 +9,19 @@ module Searches::FacetsHelper
   end
 
   def tag_facet_html(search, search_params)
-    path = path_for_filterable_search(search,
-                                      search_params,
-                                      build_facet_options(search)[:extra_params])
-
-    link_to(search.aggregation.last.to_hash['key'], path)
+    search.aggregation.map do |a|
+      html = []
+      html << link_to(a.to_hash['key'],
+                      facet_path(search, search_params, a.to_hash['key']))
+      html << content_tag(:span, "(#{a.to_hash['doc_count']})")
+      html << tag.br
+    end
   end
 
-  def build_facet_options(search)
-    {
-      extra_params: { tags: search.aggregation.first.to_hash['key'] }
-    }
+  def facet_path(search, search_params, facet)
+    path_for_filterable_search(search,
+                               search_params,
+                               { tags: facet })
   end
 
   def clear_facet(search, search_params)
