@@ -9,6 +9,8 @@ module Searches::FacetsHelper
   end
 
   def tag_facet_html(search, search_params)
+    return unless search.aggregation
+
     search.aggregation.map do |a|
       html = []
       html << link_to(a.to_hash['key'],
@@ -25,6 +27,8 @@ module Searches::FacetsHelper
   end
 
   def clear_facet(search, search_params)
+    return unless search.aggregation
+
     path = path_for_filterable_search(search,
                                       search_params,
                                       {})
