@@ -470,7 +470,7 @@ ActiveRecord::Schema.define(version: 2022_08_09_182927) do
     t.text "contributor", size: :medium
     t.text "subject", size: :medium
     t.text "publisher", size: :medium
-    t.text "properties", size: :medium
+    t.json "properties"
     t.text "body", size: :long
     t.index ["link"], name: "index_news_items_on_link"
     t.index ["rss_feed_url_id", "guid"], name: "index_news_items_on_rss_feed_url_id_and_guid"
@@ -676,7 +676,7 @@ ActiveRecord::Schema.define(version: 2022_08_09_182927) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "published_at"
-    t.text "urls", size: :medium
+    t.json "urls"
     t.index ["published_at"], name: "index_tweets_on_published_at"
     t.index ["tweet_id"], name: "index_tweets_on_tweet_id", unique: true
     t.index ["twitter_profile_id"], name: "index_tweets_on_twitter_profile_id"
@@ -684,7 +684,7 @@ ActiveRecord::Schema.define(version: 2022_08_09_182927) do
 
   create_table "twitter_lists", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.bigint "id", null: false, unsigned: true
-    t.text "member_ids", size: :long
+    t.json "member_ids"
     t.bigint "last_status_id", default: 1, null: false, unsigned: true
     t.string "statuses_updated_at"
     t.datetime "created_at", null: false
@@ -754,7 +754,7 @@ ActiveRecord::Schema.define(version: 2022_08_09_182927) do
     t.string "name"
     t.string "check_interval"
     t.string "throttle_period"
-    t.string "conditions"
+    t.json "conditions"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "time_window"
@@ -765,7 +765,7 @@ ActiveRecord::Schema.define(version: 2022_08_09_182927) do
     t.integer "youtube_profile_id"
     t.string "playlist_id"
     t.string "etag"
-    t.text "news_item_ids", size: :long
+    t.json "news_item_ids"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["youtube_profile_id", "playlist_id"], name: "index_youtube_playlists_on_youtube_profile_id_and_playlist_id", unique: true
