@@ -12,6 +12,13 @@ class ApplicationController < ActionController::Base
   ADVANCED_PARAM_KEYS = %i(filetype filter query-not query-or query-quote).freeze
   DUBLIN_CORE_PARAM_KEYS = %i(contributor publisher subject).freeze
   FILTER_PARAM_KEYS = %i(since_date sort_by tbs until_date).freeze
+  FACET_PARAM_KEYS = %i[audience
+                        content_type
+                        mime_type
+                        searchgov_custom1
+                        searchgov_custom2
+                        searchgov_custom3
+                        tags].freeze
 
   PERMITTED_PARAM_KEYS = %i[
     affiliate
@@ -28,7 +35,8 @@ class ApplicationController < ActionController::Base
     utf8
   ].concat(ADVANCED_PARAM_KEYS).
     concat(DUBLIN_CORE_PARAM_KEYS).
-    concat(FILTER_PARAM_KEYS).freeze
+    concat(FILTER_PARAM_KEYS).
+    concat(FACET_PARAM_KEYS).freeze
 
   def handle_unverified_request
     raise ActionController::InvalidAuthenticityToken
@@ -91,6 +99,7 @@ class ApplicationController < ActionController::Base
              per_page: SERP_RESULTS_PER_PAGE,
              site_limits: permitted_params[:sitelimit],
              site_excludes: permitted_params[:siteexclude]
+    h.merge!(facet_search_options)
     h.merge! query_search_options
     h.merge! highlighting_option
     h.symbolize_keys
@@ -104,6 +113,26 @@ class ApplicationController < ActionController::Base
     query_search_params.inject({}) do |hash, kv|
       hash[kv.first.to_s.underscore.to_sym] = sanitize_query kv.last
       hash
+    end
+  end
+
+  def facet_search_options
+    if permitted_params[:audience].present?
+      { audience: permitted_params[:audience] }
+    elsif permitted_params[:content_type].present?
+      { content_type: permitted_params[:content_type] }
+    elsif permitted_params[:mime_type].present?
+      { mime_type: permitted_params[:mime_type] }
+    elsif permitted_params[:searchgov_custom1].present?
+      { searchgov_custom1: permitted_params[:searchgov_custom1] }
+    elsif permitted_params[:searchgov_custom2].present?
+      { searchgov_custom2: permitted_params[:searchgov_custom2] }
+    elsif permitted_params[:searchgov_custom3].present?
+      { searchgov_custom3: permitted_params[:searchgov_custom3] }
+    elsif permitted_params[:tags].present?
+      { tags: permitted_params[:tags] }
+    else
+      {}
     end
   end
 

@@ -19,7 +19,8 @@ class I14ySearch < FilterableSearch
       query: formatted_query,
       size: detect_size,
       offset: detect_offset,
-    }.merge!(filter_options)
+    }.merge!(filter_options).
+      merge!(facet_options)
 
     I14yCollections.search(search_options)
   rescue Faraday::ClientError => e
@@ -37,6 +38,18 @@ class I14ySearch < FilterableSearch
     filter_options
   end
 
+  def facet_options
+    facet_options = { }
+    facet_options[:audience] = @options[:audience] if !@options[:audience].nil?
+    facet_options[:content_type] = @options[:content_type] if !@options[:content_type].nil?
+    facet_options[:mime_type] = @options[:mime_type] if !@options[:mime_type].nil?
+    facet_options[:searchgov_custom1] = @options[:searchgov_custom1] if !@options[:searchgov_custom1].nil?
+    facet_options[:searchgov_custom2] = @options[:searchgov_custom2] if !@options[:searchgov_custom2].nil?
+    facet_options[:searchgov_custom3] = @options[:searchgov_custom3] if !@options[:searchgov_custom3].nil?
+    facet_options[:tags] = @options[:tags] if !@options[:tags].nil?
+    facet_options
+  end
+
   def detect_size
     @limit ? @limit : @per_page
   end
@@ -47,6 +60,10 @@ class I14ySearch < FilterableSearch
 
   def first_page?
     @offset ? @offset.zero? : super
+  end
+
+  def aggregations
+    @aggregations || nil
   end
 
   protected
@@ -68,6 +85,7 @@ class I14ySearch < FilterableSearch
       @startrecord = ((@page - 1) * @per_page) + 1
       @endrecord = @startrecord + @results.size - 1
       @spelling_suggestion = response.metadata.suggestion.text if response.metadata.suggestion.present?
+      @aggregations = response.metadata.aggregations if response.metadata.aggregations.present?
     end
   end
 

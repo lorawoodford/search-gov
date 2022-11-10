@@ -24,8 +24,10 @@ module Searches::PathsHelper
   def path_for_i14y_search(search, search_params, extra_params = {})
     i14y_params = search_params.slice(:affiliate, :m, :dc)
     i14y_params[:query] = search.query
-    i14y_params.merge! extract_current_search_filter_params(search)
-    i14y_params.merge! extra_params
+    unless extra_params[:clear_params]
+      i14y_params.merge!(extract_current_search_filter_params(search))
+      i14y_params.merge!(extra_params)
+    end
     url_for i14y_params
   end
 
