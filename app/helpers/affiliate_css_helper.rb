@@ -1,3 +1,5 @@
+require 'wcag_color_contrast'
+
 module AffiliateCssHelper
   def color_picker_component(form, property, css_property_hash, data)
     data[:color] = site_css_color_property(css_property_hash, property)
@@ -15,6 +17,14 @@ module AffiliateCssHelper
     end
 
     content_tag(:div, class: 'input-append color', data: data) { inner_html }
+  end
+
+  def contrast_checker(css_property_hash, my_color, their_color)
+    my_color_value = css_property_hash[my_color]&.delete('#')
+    their_color_value = css_property_hash[their_color] ? css_property_hash[their_color]&.delete('#') : their_color
+    ratio = format('%.2f', WCAGColorContrast.ratio(my_color_value, their_color_value))
+    icon = ratio.to_i >= 4.5 ? "\u2705" : "\u274C"
+    "#{icon} Contrast is #{ratio} between #{my_color.to_s.tr('_', ' ')} and #{their_color.to_s.tr('_', ' ')}"
   end
 
   def render_affiliate_css_property_value(css_property_hash, property)
