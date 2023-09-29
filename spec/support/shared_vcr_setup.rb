@@ -42,7 +42,9 @@ VCR.configure do |config|
   config.ignore_request { |request| URI(request.uri).port.between?(9200,9299) } #Elasticsearch
   config.ignore_request { |request| URI(request.uri).port == 9998 } # Tika
 
-  secrets = YAML.load(ERB.new(File.read(Rails.root.join('config', 'secrets.yml'))).result)
+  secrets = YAML.safe_load(ERB.new(Rails.root.join('config/secrets.yml').read).result,
+                           aliases: true,
+                           permitted_classes: [Symbol])
   secrets['secret_keys'].each do |service, keys|
     keys.each do |name, key|
       config.filter_sensitive_data("<#{service.upcase}_#{name.upcase}>") { key }
@@ -53,11 +55,11 @@ VCR.configure do |config|
     i.response.body.force_encoding('UTF-8')
   end
 
-  #Capybara: http://stackoverflow.com/a/6120205/1020168
+  # Capybara: http://stackoverflow.com/a/6120205/1020168
   config.ignore_request do |request|
     URI(request.uri).request_uri == '/__identify__'
   end
 
-  #For future debugging reference:
-  #config.debug_logger = STDOUT
+  # For future debugging reference:
+  # config.debug_logger = STDOUT
 end

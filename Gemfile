@@ -202,5 +202,7 @@ group :test do
   gem 'shoulda-matchers', '~> 5.0'
   gem 'simplecov', '~> 0.17.0', require: false
   gem 'vcr', '~> 6.0'
-  gem 'webmock', '~> 3.8'
+  # As long as we're tied to elasticsearch-transport <7.4 due to omniauth_login_dot_gov we can't go past
+  # 3.18.1.  See: https://github.com/elastic/elastic-transport-ruby/issues/63 
+  gem 'webmock', '~> 3.18', '< 3.19'
 end
