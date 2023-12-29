@@ -15,7 +15,9 @@ if Rails.env.development? || should_seed_staging
       require_relative 'seeds/i14y_drawer.rb'
       require_relative 'seeds/searchgov_domain.rb'
     end
-  rescue Errno::ECONNREFUSED || Errno::EADDRNOTAVAIL
+  rescue Errno::EADDRNOTAVAIL
+    puts "Skipping i14yDrawer and SearchgovDomain seeds as there is no running I14y instance"
+  rescue Errno::ECONNREFUSED
     puts "Skipping i14yDrawer and SearchgovDomain seeds as there is no running I14y instance"
   end
   puts 'Creating custom index data'
