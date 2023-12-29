@@ -13,7 +13,7 @@ if Rails.env.development? || should_seed_staging
       require_relative 'seeds/i14y_drawer.rb'
       require_relative 'seeds/custom_index_data/searchgov_domain.rb'
     end
-  rescue Errno::EADDRNOTAVAIL, Errno::ECONNREFUSED
+  rescue Errno::EADDRNOTAVAIL, Errno::ECONNREFUSED, Net::OpenTimeout
     puts "Skipping i14yDrawer and SearchgovDomain seeds as there is no running I14y instance"
   end
   # To allow db:seed to be run multiple times (e.g. running again after standing up the API instance
