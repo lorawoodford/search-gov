@@ -6,7 +6,7 @@ describe 'db seeds' do
   context 'when I14y is not running' do
     it { expect { Rails.application.load_seed }.not_to raise_exception }
 
-    it 'skips i14y seed data' do
+    it 'skips I14y seed data' do
       expect { Rails.application.load_seed }.
         to output(/Skipping i14yDrawer and SearchgovDomain seeds as there is no running I14y instance/).to_stdout
     end
@@ -19,7 +19,7 @@ describe 'db seeds' do
 
     it { expect { Rails.application.load_seed }.not_to raise_exception }
 
-    it 'creates i14y seed data' do
+    it 'creates I14y seed data' do
       expect { Rails.application.load_seed }.
         to output(/Creating I14y Drawer/).to_stdout
     end
