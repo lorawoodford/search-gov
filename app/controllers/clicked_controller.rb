@@ -30,7 +30,8 @@ class ClickedController < ApplicationController
       :position,
       :module_code,
       :affiliate,
-      :vertical
+      :vertical,
+      :audience
     )
   end
 

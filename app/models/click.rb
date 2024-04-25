@@ -6,8 +6,15 @@ class Click
 
   attr_accessor :url
 
-  attr_reader :affiliate, :query, :position,
-              :module_code, :client_ip, :user_agent, :vertical, :referrer
+  attr_reader :affiliate,
+              :audience,
+              :query,
+              :position,
+              :module_code,
+              :client_ip,
+              :user_agent,
+              :vertical,
+              :referrer
 
   before_validation :validate_url_encoding
 
@@ -31,6 +38,7 @@ class Click
     @vertical = params[:vertical]
     @user_agent = params[:user_agent]
     @referrer = params[:referrer]
+    @audience = params[:audience]
   end
 
   def log
@@ -74,7 +82,8 @@ class Click
         url: UrlParser.redact_query(url),
         affiliate: affiliate,
         query: Redactor.redact(query.downcase),
-        position: position
+        position: position,
+        audience: audience
       }
     }
   end
